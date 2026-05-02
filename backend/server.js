@@ -39,6 +39,11 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/payments', paymentRoutes);
 
+// Root Route for Cloud Health Checks (Railway/Render)
+app.get('/', (req, res) => {
+  res.status(200).send('NeonPlay Backend API is running 🚀');
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'success', message: 'API is running' });
 });
