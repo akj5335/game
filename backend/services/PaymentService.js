@@ -1,17 +1,23 @@
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-const Transaction = require('../models/Transaction');
+const supabase = require('../config/supabase');
 const walletService = require('./WalletService');
 const env = require('../config/env');
 
 exports.createCheckoutSession = async (userId, amount) => {
-  const transaction = await Transaction.create({
-    userId,
-    amount,
-    type: 'deposit',
-    status: 'pending',
-    reference: 'stripe_pending',
-  });
+  const { data: transaction, error } = await supabase
+    .from('transactions')
+    .insert({
+      user_id: userId,
+      amount,
+      type: 'deposit',
+      status: 'pending',
+      reference: 'stripe_pending',
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -29,9 +35,9 @@ exports.createCheckoutSession = async (userId, amount) => {
       },
     ],
     mode: 'payment',
-    success_url: `${env.NODE_ENV === 'production' ? 'https://neonplay.com' : 'http://localhost:5173'}/wallet?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${env.NODE_ENV === 'production' ? 'https://neonplay.com' : 'http://localhost:5173'}/wallet`,
-    client_reference_id: transaction._id.toString(), // Pass the transaction ID to stripe
+    success_url: `${env.NODE_ENV === 'production' ? 'https://game-evk4.onrender.com' : 'http://localhost:5173'}/wallet?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${env.NODE_ENV === 'production' ? 'https://game-evk4.onrender.com' : 'http://localhost:5173'}/wallet`,
+    client_reference_id: transaction.id, // Pass the transaction ID to stripe
   });
 
   return { sessionId: session.id, url: session.url };

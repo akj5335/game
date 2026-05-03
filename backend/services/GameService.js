@@ -1,20 +1,11 @@
-const Game = require('../models/Game');
+const supabase = require('../config/supabase');
 const redis = require('../config/redis');
 
 exports.getGames = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 24;
-  const skip = (page - 1) * limit;
-
-  let filter = { isActive: true };
-
-  if (query.category) filter.category = query.category;
-  if (query.search) {
-    filter.title = { $regex: query.search, $options: 'i' };
-  }
-
-  let sort = { createdAt: -1 }; // Default new
-  if (query.sort === 'popular') sort = { popularity: -1 };
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
 
   // Cache Logic
   const cacheKey = `games:${page}:${limit}:${query.category || 'all'}:${query.sort || 'new'}:${query.search || ''}`;
@@ -27,13 +18,28 @@ exports.getGames = async (query) => {
     }
   }
 
-  const games = await Game.find(filter)
-    .sort(sort)
-    .skip(skip)
-    .limit(limit)
-    .lean(); // Lean for performance
+  let dbQuery = supabase
+    .from('games')
+    .select('*', { count: 'exact' })
+    .eq('is_active', true);
 
-  const total = await Game.countDocuments(filter);
+  if (query.category) {
+    dbQuery = dbQuery.eq('category', query.category);
+  }
+  
+  if (query.search) {
+    dbQuery = dbQuery.ilike('title', `%${query.search}%`);
+  }
+
+  if (query.sort === 'popular') {
+    dbQuery = dbQuery.order('popularity', { ascending: false });
+  } else {
+    dbQuery = dbQuery.order('created_at', { ascending: false });
+  }
+
+  const { data: games, count: total, error } = await dbQuery.range(from, to);
+
+  if (error) throw error;
 
   const result = {
     games,
@@ -50,5 +56,12 @@ exports.getGames = async (query) => {
 };
 
 exports.getGameById = async (id) => {
-  return await Game.findById(id).lean();
+  const { data, error } = await supabase
+    .from('games')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) return null;
+  return data;
 };

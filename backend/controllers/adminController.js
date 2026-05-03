@@ -1,9 +1,14 @@
-const User = require('../models/User');
+const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 
 exports.getAllUsers = async (req, res, next) => {
-  const users = await User.find().select('-password').sort('-createdAt');
+  const { data: users, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: false });
   
+  if (error) return next(new AppError(error.message, 400));
+
   res.status(200).json({
     status: 'success',
     results: users.length,
@@ -12,18 +17,32 @@ exports.getAllUsers = async (req, res, next) => {
 };
 
 exports.getStats = async (req, res, next) => {
-  const totalUsers = await User.countDocuments();
-  const totalBalance = await User.aggregate([
-    { $group: { _id: null, total: { $sum: '$walletBalance' } } }
-  ]);
+  const { count: totalUsers, error: countError } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true });
+
+  const { data: balanceData, error: balanceError } = await supabase
+    .from('profiles')
+    .select('wallet_balance');
+
+  const totalBalance = balanceData.reduce((sum, p) => sum + Number(p.wallet_balance), 0);
+
+  const { count: activeAdmins, error: adminError } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true })
+    .eq('role', 'admin');
+
+  if (countError || balanceError || adminError) {
+    return next(new AppError('Failed to fetch stats', 400));
+  }
 
   res.status(200).json({
     status: 'success',
     data: {
       stats: {
         totalUsers,
-        totalPlatformLiquidity: totalBalance[0]?.total || 0,
-        activeAdmins: await User.countDocuments({ role: 'admin' })
+        totalPlatformLiquidity: totalBalance,
+        activeAdmins
       }
     }
   });
@@ -31,22 +50,20 @@ exports.getStats = async (req, res, next) => {
 
 exports.updateUserBalance = async (req, res, next) => {
   const { amount, type } = req.body; // type: 'credit' or 'debit'
-  const user = await User.findById(req.params.id);
-
-  if (!user) {
-    return next(new AppError('User not found', 404));
-  }
+  const userId = req.params.id;
 
   if (type === 'credit') {
-    user.walletBalance += amount;
+    await supabase.rpc('increment_wallet', { user_id: userId, amount: amount });
   } else if (type === 'debit') {
-    if (user.walletBalance < amount) {
+    // Basic debit logic (could be improved with a dedicated RPC for safety)
+    const { data: profile } = await supabase.from('profiles').select('wallet_balance').eq('id', userId).single();
+    if (profile.wallet_balance < amount) {
       return next(new AppError('Insufficient balance to deduct', 400));
     }
-    user.walletBalance -= amount;
+    await supabase.from('profiles').update({ wallet_balance: profile.wallet_balance - amount }).eq('id', userId);
   }
 
-  await user.save();
+  const { data: user } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
   res.status(200).json({
     status: 'success',

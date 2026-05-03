@@ -20,12 +20,15 @@ exports.getGame = async (req, res, next) => {
     next(error);
   }
 };
+const supabase = require('../config/supabase');
+
 exports.getLeaderboard = async (req, res, next) => {
-  const User = require('../models/User');
-  const leaders = await User.find()
-    .select('name walletBalance referralCount')
-    .sort('-walletBalance')
+  const { data: leaders, error } = await supabase
+    .from('profiles')
+    .select('name, wallet_balance, referral_count')
+    .order('wallet_balance', { ascending: false })
     .limit(10);
     
+  if (error) return next(error);
   res.status(200).json({ status: 'success', data: { leaders } });
 };

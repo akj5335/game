@@ -5,11 +5,7 @@ const path = require('path');
 const passport = require('passport');
 require('./config/passport');
 const env = require('./config/env');
-const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/errorMiddleware');
-
-// Connect to database
-connectDB();
 
 const rateLimit = require('express-rate-limit');
 const app = express();

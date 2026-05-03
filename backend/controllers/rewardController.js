@@ -1,38 +1,68 @@
-const User = require('../models/User');
+const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 
 exports.claimDailyReward = async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const { data: user, error: fetchError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', req.user.id)
+    .single();
+
+  if (fetchError) return next(new AppError('User not found', 404));
 
   const now = new Date();
-  const lastClaim = user.lastRewardClaimed;
+  const lastClaim = user.last_reward_claimed ? new Date(user.last_reward_claimed) : null;
 
   if (lastClaim && now.toDateString() === lastClaim.toDateString()) {
     return next(new AppError('Daily reward already claimed today!', 400));
   }
 
   const bonusAmount = 5.00; // $5 daily bonus
-  user.walletBalance += bonusAmount;
-  user.lastRewardClaimed = now;
-  await user.save();
+  
+  const { data: updatedUser, error: updateError } = await supabase
+    .from('profiles')
+    .update({ 
+      wallet_balance: Number(user.wallet_balance) + bonusAmount,
+      last_reward_claimed: now.toISOString()
+    })
+    .eq('id', req.user.id)
+    .select()
+    .single();
+
+  if (updateError) return next(new AppError(updateError.message, 400));
 
   res.status(200).json({
     status: 'success',
     message: `Claimed $${bonusAmount} daily bonus!`,
-    data: { walletBalance: user.walletBalance }
+    data: { walletBalance: updatedUser.wallet_balance }
   });
 };
 
 exports.watchAdReward = async (req, res, next) => {
-  const user = await User.findById(req.user._id);
-  
   const rewardAmount = 0.50; // $0.50 per ad
-  user.walletBalance += rewardAmount;
-  await user.save();
+  
+  const { data: user, error: fetchError } = await supabase
+    .from('profiles')
+    .select('wallet_balance')
+    .eq('id', req.user.id)
+    .single();
+
+  if (fetchError) return next(new AppError('User not found', 404));
+
+  const { data: updatedUser, error: updateError } = await supabase
+    .from('profiles')
+    .update({ 
+      wallet_balance: Number(user.wallet_balance) + rewardAmount 
+    })
+    .eq('id', req.user.id)
+    .select()
+    .single();
+
+  if (updateError) return next(new AppError(updateError.message, 400));
 
   res.status(200).json({
     status: 'success',
     message: `Earned $${rewardAmount} for watching an ad!`,
-    data: { walletBalance: user.walletBalance }
+    data: { walletBalance: updatedUser.wallet_balance }
   });
 };
