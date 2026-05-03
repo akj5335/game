@@ -7,11 +7,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a name'],
     },
-    email: {
+    phoneNumber: {
       type: String,
-      required: [true, 'Please provide an email'],
       unique: true,
-      lowercase: true,
+      sparse: true, // Allow null for Google-only users
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
     password: {
       type: String,
@@ -29,16 +33,25 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'Wallet balance cannot be negative'],
     },
+    inviteCode: {
+      type: String,
+    },
+    lastRewardClaimed: {
+      type: Date,
+    },
+    referralCount: {
+      type: Number,
+      default: 0,
+    },
     __v: { type: Number, select: false }, // For Optimistic Concurrency Control
   },
   { timestamps: true }
 );
 
 // Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 12);
-  next();
 });
 
 // Instance method to check password

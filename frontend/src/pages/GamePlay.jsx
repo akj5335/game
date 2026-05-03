@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import { Maximize2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const GamePlay = () => {
   const { id } = useParams();
@@ -13,8 +13,23 @@ const GamePlay = () => {
   useEffect(() => {
     const fetchGame = async () => {
       try {
-        const res = await axios.get(`/api/games/${id}`);
-        setGame(res.data.data.game);
+        const { data, error } = await supabase
+          .from('games')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (error) throw error;
+        setGame(data);
+        
+        // Save to recently played in localStorage
+        const recent = JSON.parse(localStorage.getItem('neonplay_recent') || '[]');
+        const filtered = recent.filter(g => g.id !== id);
+        localStorage.setItem('neonplay_recent', JSON.stringify([
+          { id: data.id, title: data.title, thumbnail: data.thumbnail },
+          ...filtered
+        ].slice(0, 10)));
+
       } catch (error) {
         console.error('Failed to fetch game details', error);
       } finally {
@@ -48,12 +63,21 @@ const GamePlay = () => {
         <div className="flex-1">
           <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-[0_0_20px_rgba(102,252,241,0.2)] border border-[var(--color-neon-teal)]/30">
             
-            {/* Loading Overlay */}
+            {/* Loading / Ad Overlay */}
             {!iframeLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10 backdrop-blur-sm">
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 border-4 border-[var(--color-neon-teal)] border-t-[var(--color-neon-blue)] rounded-full animate-spin mb-4"></div>
-                  <h2 className="text-xl font-bold text-gradient">Initializing Game Environment...</h2>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/95 z-20 backdrop-blur-xl">
+                <div className="flex flex-col items-center text-center max-w-sm px-6">
+                  <div className="w-20 h-20 border-4 border-[var(--color-neon-teal)]/20 border-t-[var(--color-neon-blue)] rounded-full animate-spin mb-8 shadow-[0_0_20px_rgba(102,252,241,0.2)]"></div>
+                  <h2 className="text-3xl font-black text-white mb-2 tracking-tighter">SECURING CONNECTION...</h2>
+                  <p className="text-gray-500 text-sm mb-8 font-medium italic">"Every win starts with a single click."</p>
+                  
+                  {/* Mock Ad Slot */}
+                  <div className="w-full h-24 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center justify-center p-4">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Sponsored</p>
+                    <div className="w-full h-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 flex items-center justify-center font-black text-[var(--color-neon-blue)] text-xs">
+                      NEONPLAY PREMIUM PACK - 50% OFF
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

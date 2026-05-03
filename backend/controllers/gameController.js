@@ -20,3 +20,12 @@ exports.getGame = async (req, res, next) => {
     next(error);
   }
 };
+exports.getLeaderboard = async (req, res, next) => {
+  const User = require('../models/User');
+  const leaders = await User.find()
+    .select('name walletBalance referralCount')
+    .sort('-walletBalance')
+    .limit(10);
+    
+  res.status(200).json({ status: 'success', data: { leaders } });
+};

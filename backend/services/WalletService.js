@@ -1,97 +1,110 @@
-const mongoose = require('mongoose');
-const Transaction = require('../models/Transaction');
-const User = require('../models/User');
+const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 
 exports.requestDeposit = async (userId, amount, reference) => {
-  const transaction = await Transaction.create({
-    userId,
-    amount,
-    type: 'deposit',
-    reference,
-    status: 'pending',
-  });
-  return transaction;
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({
+      user_id: userId,
+      amount,
+      type: 'deposit',
+      reference,
+      status: 'pending',
+    })
+    .select()
+    .single();
+
+  if (error) throw new AppError(error.message, 400);
+  return data;
 };
 
 exports.requestWithdrawal = async (userId, amount) => {
-  // Check available balance before allowing request
-  // Available Balance = Total Balance - SUM(Pending Withdrawals)
-  const user = await User.findById(userId);
-  if (!user) throw new AppError('User not found', 404);
+  // Check available balance
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('wallet_balance')
+    .eq('id', userId)
+    .single();
 
-  const pendingWithdrawals = await Transaction.aggregate([
-    { $match: { userId: mongoose.Types.ObjectId(userId), type: 'withdrawal', status: 'pending' } },
-    { $group: { _id: null, total: { $sum: '$amount' } } }
-  ]);
+  if (profileError) throw new AppError('User not found', 404);
 
-  const pendingAmount = pendingWithdrawals.length > 0 ? pendingWithdrawals[0].total : 0;
-  const availableBalance = user.walletBalance - pendingAmount;
+  const { data: pending, error: pendingError } = await supabase
+    .from('transactions')
+    .select('amount')
+    .eq('user_id', userId)
+    .eq('type', 'withdrawal')
+    .eq('status', 'pending');
+
+  if (pendingError) throw new AppError(pendingError.message, 400);
+
+  const pendingAmount = pending.reduce((sum, t) => sum + Number(t.amount), 0);
+  const availableBalance = Number(profile.wallet_balance) - pendingAmount;
 
   if (amount > availableBalance) {
     throw new AppError(`Insufficient available balance. You have ${pendingAmount} in pending withdrawals.`, 400);
   }
 
-  const transaction = await Transaction.create({
-    userId,
-    amount,
-    type: 'withdrawal',
-    status: 'pending',
-  });
-  
-  return transaction;
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({
+      user_id: userId,
+      amount,
+      type: 'withdrawal',
+      status: 'pending',
+    })
+    .select()
+    .single();
+
+  if (error) throw new AppError(error.message, 400);
+  return data;
 };
 
 exports.approveTransaction = async (transactionId) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { data, error } = await supabase.rpc('approve_transaction', { t_id: transactionId });
 
-  try {
-    const transaction = await Transaction.findById(transactionId).session(session);
-    if (!transaction) throw new AppError('Transaction not found', 404);
-    if (transaction.status !== 'pending') throw new AppError('Transaction is already processed', 400);
+  if (error) throw new AppError(error.message, 400);
+  if (data.error) throw new AppError(data.error, 400);
 
-    const user = await User.findById(transaction.userId).session(session);
+  // Fetch updated transaction
+  const { data: transaction } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('id', transactionId)
+    .single();
 
-    if (transaction.type === 'deposit') {
-      user.walletBalance += transaction.amount;
-    } else if (transaction.type === 'withdrawal') {
-      if (user.walletBalance < transaction.amount) {
-        throw new AppError('User has insufficient balance for this withdrawal', 400);
-      }
-      user.walletBalance -= transaction.amount;
-    }
-
-    transaction.status = 'approved';
-    
-    await user.save({ session });
-    await transaction.save({ session });
-    
-    await session.commitTransaction();
-    session.endSession();
-
-    return transaction;
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    throw error;
-  }
-};
-
-exports.rejectTransaction = async (transactionId) => {
-  const transaction = await Transaction.findById(transactionId);
-  if (!transaction) throw new AppError('Transaction not found', 404);
-  if (transaction.status !== 'pending') throw new AppError('Transaction is already processed', 400);
-
-  transaction.status = 'rejected';
-  await transaction.save();
   return transaction;
 };
 
+exports.rejectTransaction = async (transactionId) => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({ status: 'rejected' })
+    .eq('id', transactionId)
+    .select()
+    .single();
+
+  if (error) throw new AppError(error.message, 400);
+  return data;
+};
+
 exports.getUserTransactions = async (userId) => {
-  return await Transaction.find({ userId }).sort({ createdAt: -1 });
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw new AppError(error.message, 400);
+  return data;
 };
 
 exports.getAllPendingTransactions = async () => {
-  return await Transaction.find({ status: 'pending' }).populate('userId', 'name email').sort({ createdAt: 1 });
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*, profiles(name, phone_number)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: true });
+
+  if (error) throw new AppError(error.message, 400);
+  return data;
 };

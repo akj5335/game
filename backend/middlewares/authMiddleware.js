@@ -1,7 +1,4 @@
-const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
-const User = require('../models/User');
-const env = require('../config/env');
+const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 
 exports.protect = async (req, res, next) => {
@@ -15,22 +12,27 @@ exports.protect = async (req, res, next) => {
       return next(new AppError('You are not logged in! Please log in to get access.', 401));
     }
 
-    const decoded = await promisify(jwt.verify)(token, env.JWT_SECRET);
+    // Verify token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
     
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-      return next(new AppError('The user belonging to this token no longer exists.', 401));
+    if (error || !user) {
+      return next(new AppError('Invalid token or user does not exist.', 401));
     }
 
-    req.user = currentUser;
+    // Fetch additional profile data from our custom profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return next(new AppError('User profile not found.', 404));
+    }
+
+    req.user = { ...user, ...profile };
     next();
   } catch (err) {
-    if (err.name === 'JsonWebTokenError') {
-      return next(new AppError('Invalid token. Please log in again!', 401));
-    }
-    if (err.name === 'TokenExpiredError') {
-      return next(new AppError('Your token has expired! Please log in again.', 401));
-    }
     next(err);
   }
 };

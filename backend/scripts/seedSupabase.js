@@ -1,7 +1,16 @@
-const mongoose = require('mongoose');
-const Game = require('../models/Game');
+const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey || supabaseKey === 'YOUR_SERVICE_ROLE_KEY') {
+  console.error('❌ Supabase URL or Service Role Key missing in .env');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const gameList = [
   // Action / Arcade
@@ -173,33 +182,44 @@ const gameList = [
 
 const seedGames = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('Connected to DB...');
+    console.log('Clearing existing games...');
+    const { error: deleteError } = await supabase
+      .from('games')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
 
-    await Game.deleteMany();
-    console.log('Cleared existing games...');
+    if (deleteError) throw deleteError;
 
-    const seededGames = gameList.map((g, index) => {
+    const seededGames = gameList.map((g) => {
       const slug = g.title.toLowerCase()
         .replace(/’/g, '')
         .replace(/\s+/g, '-')
         .replace(/[^\w-]/g, '');
         
       return {
-        ...g,
+        title: g.title,
+        category: g.category,
         thumbnail: `https://images.crazygames.com/${slug}/thumb-150.png`,
-        iframeUrl: `https://html5.gamedistribution.com/${slug}/`,
+        iframe_url: `https://html5.gamedistribution.com/${slug}/`,
         popularity: Math.floor(Math.random() * 100000) + 10000,
+        is_active: true
       };
     });
 
-    await Game.insertMany(seededGames);
-    console.log(`✅ Successfully seeded ${seededGames.length} premium games!`);
+    console.log(`Inserting ${seededGames.length} games...`);
     
-    process.exit();
+    // Split into chunks of 50 to avoid payload limits
+    for (let i = 0; i < seededGames.length; i += 50) {
+      const chunk = seededGames.slice(i, i + 50);
+      const { error } = await supabase.from('games').insert(chunk);
+      if (error) throw error;
+      console.log(`Inserted chunk ${i / 50 + 1}`);
+    }
+
+    console.log(`✅ Successfully seeded ${seededGames.length} games in Supabase!`);
+    
   } catch (err) {
-    console.error('Seeding error:', err);
-    process.exit(1);
+    console.error('Seeding error:', err.message);
   }
 };
 

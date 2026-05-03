@@ -4,12 +4,17 @@ const { z } = require('zod');
 // Validation schemas
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email format'),
+  phoneNumber: z.string().min(10, 'Invalid phone number'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+  inviteCode: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
+  phoneNumber: z.string().min(10, 'Invalid phone number'),
   password: z.string(),
 });
 
@@ -34,7 +39,7 @@ exports.register = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const validatedData = loginSchema.parse(req.body);
-    const result = await authService.loginUser(validatedData.email, validatedData.password);
+    const result = await authService.loginUser(validatedData.phoneNumber, validatedData.password);
 
     res.status(200).json({
       status: 'success',
