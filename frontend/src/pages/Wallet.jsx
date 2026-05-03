@@ -55,7 +55,7 @@ const Wallet = () => {
           <div className="glass p-8 rounded-2xl border border-[var(--color-neon-teal)]/30 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-neon-blue)]/10 rounded-full blur-3xl"></div>
             <p className="text-[var(--color-light-gray)] font-semibold mb-2">Available Balance</p>
-            <h2 className="text-6xl font-bold text-white mb-6">${user.walletBalance.toFixed(2)}</h2>
+            <h2 className="text-6xl font-bold text-white mb-6">${(user.wallet_balance || 0).toFixed(2)}</h2>
             
             <div className="flex gap-4 justify-center">
               <button 

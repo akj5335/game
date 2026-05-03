@@ -10,15 +10,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchProfile = async (userId) => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      return { data, error };
+    };
+
     const checkUser = async () => {
-      // 1. Check for active Supabase session
+      setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (session) {
         setSession(session);
-        setUser(session.user);
+        const { data: profile } = await fetchProfile(session.user.id);
+        setUser({ ...session.user, ...profile });
         axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
       } else {
-        // 2. Check for Guest session in localStorage
         const savedGuest = localStorage.getItem('neonplay_guest');
         if (savedGuest) {
           setUser(JSON.parse(savedGuest));
@@ -29,14 +39,15 @@ export const AuthProvider = ({ children }) => {
 
     checkUser();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      setUser(session?.user ?? null);
       if (session) {
+        const { data: profile } = await fetchProfile(session.user.id);
+        setUser({ ...session.user, ...profile });
         axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
-        localStorage.removeItem('neonplay_guest'); // Clear guest if logged in
+        localStorage.removeItem('neonplay_guest');
       } else {
+        setUser(null);
         delete axios.defaults.headers.common['Authorization'];
       }
       setLoading(false);

@@ -62,12 +62,12 @@ const Dashboard = () => {
             
             <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[var(--color-neon-blue)] to-[var(--color-neon-teal)] p-1 mx-auto mb-6 shadow-[0_0_30px_rgba(102,252,241,0.2)]">
               <div className="w-full h-full bg-[var(--color-dark-bg)] rounded-full flex items-center justify-center text-4xl font-black text-white uppercase">
-                {user.name.substring(0, 2)}
+                {(user.name || user.user_metadata?.name || '??').substring(0, 2)}
               </div>
             </div>
             
-            <h2 className="text-3xl font-black text-white mb-1 tracking-tight">{user.name}</h2>
-            <p className="text-[var(--color-light-gray)] font-bold text-sm mb-8 opacity-60">{user.phoneNumber}</p>
+            <h2 className="text-3xl font-black text-white mb-1 tracking-tight">{user.name || user.user_metadata?.name || 'Anonymous'}</h2>
+            <p className="text-[var(--color-light-gray)] font-bold text-sm mb-8 opacity-60">{user.phone_number || user.email}</p>
             
             {user.role === 'admin' && (
               <Link to="/admin" className="flex items-center justify-center gap-2 w-full bg-purple-500/10 text-purple-400 font-black py-4 rounded-2xl border border-purple-500/20 hover:bg-purple-500/20 transition-all mb-6">
@@ -81,7 +81,7 @@ const Dashboard = () => {
                   <Wallet className="text-[var(--color-neon-blue)] group-hover:scale-110 transition-transform" /> 
                   WALLET
                 </div>
-                <span className="font-black text-2xl text-[var(--color-neon-blue)]">${user.walletBalance.toFixed(2)}</span>
+                <span className="font-black text-2xl text-[var(--color-neon-blue)]">${(user.wallet_balance || 0).toFixed(2)}</span>
               </Link>
             </div>
           </div>
