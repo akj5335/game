@@ -2,8 +2,6 @@ require('express-async-errors');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const passport = require('passport');
-require('./config/passport');
 const env = require('./config/env');
 const errorHandler = require('./middlewares/errorMiddleware');
 
@@ -27,7 +25,6 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(passport.initialize());
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
