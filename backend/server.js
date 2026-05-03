@@ -72,6 +72,10 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'success', message: 'API is running' });
 });
 
+app.get('/api/test', (req, res) => {
+  res.send('API working ✅');
+});
+
 // Global Error Handler
 app.use(errorHandler);
 
