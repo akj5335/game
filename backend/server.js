@@ -16,7 +16,10 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://game-ndnm.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use('/api/auth', authLimiter);
 
 app.use((req, res, next) => {
