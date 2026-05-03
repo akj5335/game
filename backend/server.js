@@ -1,6 +1,7 @@
 require('express-async-errors');
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const passport = require('passport');
 require('./config/passport');
 const env = require('./config/env');
@@ -47,10 +48,25 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/rewards', rewardRoutes);
 
-// Root Route for Cloud Health Checks (Railway/Render)
-app.get('/', (req, res) => {
-  res.status(200).send('NeonPlay Backend API is running 🚀');
-});
+// Static Files & Frontend Routing
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the frontend build folder
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+  // Catch-all route to serve the frontend's index.html
+  app.get('*', (req, res) => {
+    // Exclude API routes from catch-all
+    if (req.path.startsWith('/api')) {
+       return res.status(404).json({ message: 'API route not found' });
+    }
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+  });
+} else {
+  // Root Route for Development/Health Checks
+  app.get('/', (req, res) => {
+    res.status(200).send('NeonPlay Backend API is running 🚀');
+  });
+}
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'success', message: 'API is running' });
