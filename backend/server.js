@@ -49,22 +49,22 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/rewards', rewardRoutes);
 
 // Static Files & Frontend Routing
-if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the frontend build folder
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+const frontendPath = path.join(__dirname, '../frontend/dist');
+console.log(`📂 Static files path: ${frontendPath}`);
 
-  // Catch-all route to serve the frontend's index.html
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(frontendPath));
+
   app.get('*', (req, res) => {
-    // Exclude API routes from catch-all
-    if (req.path.startsWith('/api')) {
-       return res.status(404).json({ message: 'API route not found' });
+    // If it's an API route or a file request (has a dot), don't serve index.html
+    if (req.path.startsWith('/api') || req.path.includes('.')) {
+      return res.status(404).json({ message: 'Resource not found' });
     }
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 } else {
-  // Root Route for Development/Health Checks
   app.get('/', (req, res) => {
-    res.status(200).send('NeonPlay Backend API is running 🚀');
+    res.status(200).send('NeonPlay Backend API is running 🚀 (Development Mode)');
   });
 }
 
