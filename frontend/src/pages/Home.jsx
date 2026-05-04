@@ -48,7 +48,15 @@ const Home = () => {
       {!loading && featuredGame ? (
         <section className="relative h-[85vh] overflow-hidden">
           <div className="absolute inset-0">
-            <img src={featuredGame.thumbnail} alt="Featured" className="w-full h-full object-cover blur-[1px] scale-105 opacity-30" />
+            <img 
+              src={featuredGame.thumbnail} 
+              alt="Featured" 
+              className="w-full h-full object-cover blur-[1px] scale-105 opacity-30" 
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(featuredGame.title)}&background=0b0c10&color=66fcf1&size=800`;
+              }}
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-dark-bg)] via-[var(--color-dark-bg)]/60 to-transparent" />
           </div>
           
@@ -96,7 +104,15 @@ const Home = () => {
               {recentGames.map((game) => (
                 <Link key={game.id} to={`/game/${game.id}`} className="group block">
                   <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-white/5 hover:border-[var(--color-neon-blue)]/50 transition-all mb-3 relative">
-                    <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <img 
+                      src={game.thumbnail} 
+                      alt={game.title} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.title)}&background=0b0c10&color=66fcf1&size=400&font-size=0.33`;
+                      }}
+                    />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors" />
                   </div>
                   <p className="text-xs font-black text-gray-400 group-hover:text-white transition-colors line-clamp-1 uppercase text-center">{game.title}</p>
@@ -160,7 +176,7 @@ const Home = () => {
                         loading="lazy" 
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = `https://placehold.co/400x600/0b0c10/66fcf1?text=${encodeURIComponent(game.title)}`;
+                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.title)}&background=0b0c10&color=66fcf1&size=400&font-size=0.33`;
                         }}
                       />
                     </div>
