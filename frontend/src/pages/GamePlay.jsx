@@ -11,6 +11,7 @@ const GamePlay = () => {
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [theaterMode, setTheaterMode] = useState(false);
+  const [pendingSub, setPendingSub] = useState(false);
   const iframeRef = useRef(null);
 
   useEffect(() => {
@@ -25,13 +26,27 @@ const GamePlay = () => {
         if (error) throw error;
         setGame(data);
         
-        // Save to recently played in localStorage
+        // Save to recently played
         const recent = JSON.parse(localStorage.getItem('neonplay_recent') || '[]');
         const filtered = recent.filter(g => g.id !== id);
         localStorage.setItem('neonplay_recent', JSON.stringify([
           { id: data.id, title: data.title, thumbnail: data.thumbnail },
           ...filtered
         ].slice(0, 10)));
+
+        // If game is premium and user is logged in, check for pending subscription
+        if (data.is_premium && user?.id) {
+          const { data: subData } = await supabase
+            .from('subscriptions')
+            .select('status')
+            .eq('user_id', user.id)
+            .eq('status', 'pending_manual')
+            .single();
+          
+          if (subData) {
+            setPendingSub(true);
+          }
+        }
 
       } catch (error) {
         console.error('Failed to fetch game details', error);
@@ -43,7 +58,7 @@ const GamePlay = () => {
     
     // Scroll to top when game changes
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, user]);
 
   const toggleFullScreen = () => {
     if (iframeRef.current) {
@@ -81,6 +96,27 @@ const GamePlay = () => {
     const isExpired = user?.subscription_expiry ? new Date(user.subscription_expiry) < new Date() : true;
     
     if (!isSubscribed || isExpired) {
+      if (pendingSub) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-[var(--color-dark-bg)] px-4">
+            <div className="text-center p-10 glass rounded-[2.5rem] max-w-lg border border-yellow-500/30 shadow-[0_0_50px_rgba(234,179,8,0.1)]">
+              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-4">
+                <span className="text-yellow-500">WAITING</span> FOR APPROVAL
+              </h2>
+              <p className="text-gray-400 font-bold mb-8 leading-relaxed">
+                Your manual payment is currently under review by our admin. Premium access will be granted shortly.
+              </p>
+              <div className="w-16 h-16 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin mx-auto mb-6"></div>
+              <div className="text-center">
+                <Link to="/" className="text-xs font-black text-gray-500 uppercase tracking-widest hover:text-white transition-colors">
+                  Return to Free Games
+                </Link>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--color-dark-bg)] px-4">
           <div className="text-center p-10 glass rounded-[2.5rem] max-w-lg border border-[var(--color-neon-blue)]/30 shadow-[0_0_50px_rgba(102,252,241,0.1)]">

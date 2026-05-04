@@ -83,6 +83,33 @@ const Subscription = () => {
     }
   };
 
+  const handleManualSubscribe = async (planId, amount) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('neonplay_token');
+      
+      await axios.post(
+        '/api/subscriptions/manual-request',
+        { planId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // WhatsApp URL
+      const adminPhone = "919876543210"; // Replace with real admin phone
+      const message = `Hello, I want to subscribe to NeonPlay ${planId} (₹${amount}). My User ID is: ${user?.id || 'Unknown'}. I am ready to pay via UPI QR.`;
+      const waUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+      
+      alert('Request recorded! You will now be redirected to WhatsApp to complete the payment.');
+      window.open(waUrl, '_blank');
+      navigate(-1);
+    } catch (err) {
+      console.error('Manual Sub Error:', err);
+      alert(err.response?.data?.message || 'Failed to initiate manual request.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-12 bg-[var(--color-dark-bg)] px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto text-center mb-16">
@@ -121,9 +148,17 @@ const Subscription = () => {
           <button 
             onClick={() => handleSubscribe('monthly_49')}
             disabled={loading}
-            className="w-full py-4 rounded-xl border-2 border-[var(--color-neon-blue)] text-[var(--color-neon-blue)] font-black uppercase tracking-widest hover:bg-[var(--color-neon-blue)] hover:text-black transition-all"
+            className="w-full py-4 rounded-xl border-2 border-[var(--color-neon-blue)] text-[var(--color-neon-blue)] font-black uppercase tracking-widest hover:bg-[var(--color-neon-blue)] hover:text-black transition-all mb-4"
           >
-            Select Basic
+            Select Basic (Card)
+          </button>
+          
+          <button 
+            onClick={() => handleManualSubscribe('monthly_49', 49)}
+            disabled={loading}
+            className="w-full py-4 rounded-xl border-2 border-green-500 text-green-500 font-black uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all flex items-center justify-center gap-2"
+          >
+            Pay via WhatsApp (UPI)
           </button>
         </div>
 
@@ -159,9 +194,17 @@ const Subscription = () => {
           <button 
             onClick={() => handleSubscribe('monthly_99')}
             disabled={loading}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-neon-teal)] text-black font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-[var(--color-neon-blue)]/20"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-[var(--color-neon-blue)] to-[var(--color-neon-teal)] text-black font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-[var(--color-neon-blue)]/20 mb-4"
           >
-            {loading ? 'Processing...' : 'Subscribe Elite'}
+            {loading ? 'Processing...' : 'Subscribe Elite (Card/NetBanking)'}
+          </button>
+
+          <button 
+            onClick={() => handleManualSubscribe('monthly_99', 99)}
+            disabled={loading}
+            className="w-full py-4 rounded-xl border-2 border-green-500 text-green-500 font-black uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all flex items-center justify-center gap-2"
+          >
+            Pay via WhatsApp (UPI)
           </button>
         </div>
 

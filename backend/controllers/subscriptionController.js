@@ -102,3 +102,55 @@ exports.verifyPayment = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.requestManualSubscription = async (req, res, next) => {
+  try {
+    const { planId } = req.body;
+    const userId = req.user.id;
+
+    if (!PLANS[planId]) {
+      return next(new AppError('Invalid plan selected.', 400));
+    }
+
+    const plan = PLANS[planId];
+
+    // Check if a pending manual request already exists
+    const { data: existingReq, error: fetchError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'pending_manual')
+      .single();
+
+    if (existingReq) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'You already have a pending request. Please wait for admin approval.'
+      });
+    }
+
+    // Insert manual request
+    const { error: insertError } = await supabase
+      .from('subscriptions')
+      .insert([{
+        user_id: userId,
+        plan_name: plan.name,
+        amount: plan.amount,
+        status: 'pending_manual',
+        razorpay_order_id: 'manual_payment', // Using this field temporarily
+        razorpay_payment_id: 'manual', 
+        expiry_date: new Date().toISOString() // Placeholder
+      }]);
+
+    if (insertError) {
+      return next(new AppError('Failed to record manual subscription request: ' + insertError.message, 500));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Manual subscription request received. Waiting for approval.'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
