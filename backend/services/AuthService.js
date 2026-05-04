@@ -2,7 +2,10 @@ const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 
 exports.registerUser = async (userData) => {
-  const { name, phoneNumber, password, inviteCode } = userData;
+  const { name, phoneNumber, password } = userData;
+  // Sanitize inviteCode — treat undefined, null, "undefined", and empty strings as no invite code
+  const rawInvite = userData.inviteCode;
+  const inviteCode = (rawInvite && rawInvite !== 'undefined' && rawInvite.trim() !== '') ? rawInvite.trim() : null;
   const email = `${phoneNumber}@neonplay.com`;
 
   // 1. Create user in Supabase Auth using Admin API (auto-confirms)
@@ -55,11 +58,11 @@ exports.registerUser = async (userData) => {
   }
 
   // 3. Handle Referral
-  if (inviteCode && inviteCode !== 'undefined' && inviteCode.trim() !== '') {
+  if (inviteCode) {
     const { data: referrer, error: refError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('invite_code', inviteCode.trim().toUpperCase())
+      .eq('invite_code', inviteCode.toUpperCase())
       .single();
 
     if (referrer && !refError) {

@@ -27,7 +27,7 @@ const Login = () => {
         if (password !== confirmPassword) {
           throw new Error("Passwords don't match");
         }
-        await register({ phoneNumber, password, confirmPassword, name, inviteCode });
+        await register({ phoneNumber, password, confirmPassword, name, inviteCode: inviteCode.trim() || null });
       }
       navigate('/dashboard');
     } catch (err) {
