@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Maximize2, Monitor, Layout, ArrowLeft, Info, Trophy, Share2 } from 'lucide-react';
+import { Maximize2, Monitor, Layout, ArrowLeft, Info, Trophy, Share2, PlaySquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const GamePlay = () => {
@@ -23,7 +23,7 @@ const GamePlay = () => {
         if (error) throw error;
         setGame(data);
         
-        // Save to recently played in localStorage
+        // Save to recently played
         const recent = JSON.parse(localStorage.getItem('neonplay_recent') || '[]');
         const filtered = recent.filter(g => g.id !== id);
         localStorage.setItem('neonplay_recent', JSON.stringify([
@@ -38,8 +38,6 @@ const GamePlay = () => {
       }
     };
     fetchGame();
-    
-    // Scroll to top when game changes
     window.scrollTo(0, 0);
   }, [id]);
 
@@ -55,8 +53,8 @@ const GamePlay = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-dark-bg)]">
         <div className="flex flex-col items-center">
-          <div className="w-16 h-16 border-4 border-[var(--color-neon-blue)]/20 border-t-[var(--color-neon-blue)] rounded-full animate-spin mb-4"></div>
-          <p className="text-xl font-black text-[var(--color-neon-blue)] animate-pulse tracking-widest uppercase">Initializing Neural Link...</p>
+          <div className="w-12 h-12 border-4 border-[var(--color-accent-primary)]/30 border-t-[var(--color-accent-primary)] rounded-full animate-spin mb-4"></div>
+          <p className="text-sm font-semibold text-gray-400">Loading Game...</p>
         </div>
       </div>
     );
@@ -65,73 +63,67 @@ const GamePlay = () => {
   if (!game) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center bg-[var(--color-dark-bg)]">
-        <p className="text-4xl font-black text-red-500 mb-6 uppercase tracking-tighter">ERROR: DATA CORRUPTED</p>
-        <p className="text-gray-400 mb-8 max-w-md">The requested game module could not be located in the grid.</p>
-        <Link to="/" className="bg-white text-black px-8 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-[var(--color-neon-blue)] transition-colors">
-          Return to Hub
+        <p className="text-2xl font-bold text-white mb-4">Game Not Found</p>
+        <p className="text-gray-400 mb-8 max-w-md">This game might have been removed or is temporarily unavailable.</p>
+        <Link to="/" className="bg-[var(--color-accent-primary)] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-indigo-500 transition-colors">
+          Return Home
         </Link>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen pb-20 pt-24 animate-fade-in ${theaterMode ? 'bg-black' : 'bg-[var(--color-dark-bg)]'}`}>
-      <div className={`${theaterMode ? 'max-w-full px-0' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
+    <div className={`min-h-screen pb-16 pt-20 transition-colors duration-300 ${theaterMode ? 'bg-black' : 'bg-[var(--color-dark-bg)]'}`}>
+      <div className={`${theaterMode ? 'w-full' : 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8'}`}>
         
-        {/* Breadcrumbs / Back button */}
+        {/* Breadcrumbs / Actions */}
         {!theaterMode && (
-          <div className="mb-8 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors group">
-              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="font-bold text-sm uppercase tracking-widest">Back to Grid</span>
+          <div className="mb-6 flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+              <ArrowLeft size={18} />
+              <span className="font-semibold text-sm">Back</span>
             </Link>
-            <div className="flex items-center gap-4">
-               <button className="p-2 text-gray-500 hover:text-[var(--color-neon-blue)] transition-colors"><Share2 size={20} /></button>
-               <button className="p-2 text-gray-500 hover:text-yellow-500 transition-colors"><Trophy size={20} /></button>
+            <div className="flex items-center gap-2">
+               <button className="p-2 text-gray-400 hover:text-white transition-colors bg-[var(--color-dark-surface)] rounded-lg border border-white/5"><Share2 size={18} /></button>
+               <button className="p-2 text-gray-400 hover:text-white transition-colors bg-[var(--color-dark-surface)] rounded-lg border border-white/5"><Trophy size={18} /></button>
             </div>
           </div>
         )}
 
-        <div className={`flex flex-col ${theaterMode ? 'gap-0' : 'lg:flex-row gap-12'}`}>
+        <div className={`flex flex-col ${theaterMode ? '' : 'lg:flex-row gap-8'}`}>
           
-          {/* Game Area */}
-          <div className="flex-1">
-            <div className={`relative w-full ${theaterMode ? 'h-[85vh]' : 'aspect-video rounded-[2rem]'} bg-black overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border ${theaterMode ? 'border-b border-white/10' : 'border-white/5'}`}>
+          {/* Main Game Area */}
+          <div className="flex-1 w-full">
+            <div className={`relative w-full ${theaterMode ? 'h-[90vh]' : 'aspect-video rounded-2xl'} bg-black overflow-hidden shadow-xl border border-white/10 group`}>
               
-              {/* Controls Overlay (Floating) */}
-              <div className="absolute top-6 right-6 flex items-center gap-3 z-30 opacity-0 hover:opacity-100 transition-opacity">
+              {/* Controls Overlay */}
+              <div className="absolute top-4 right-4 flex items-center gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
                  <button 
                   onClick={() => setTheaterMode(!theaterMode)}
-                  className="p-3 bg-black/60 backdrop-blur-md rounded-xl text-white hover:bg-[var(--color-neon-blue)] hover:text-black transition-all border border-white/10"
+                  className="p-2.5 bg-black/70 backdrop-blur-md rounded-lg text-white hover:bg-[var(--color-accent-primary)] transition-colors"
                   title="Theater Mode"
                 >
-                  <Layout size={20} />
+                  <Layout size={18} />
                 </button>
                 <button 
                   onClick={toggleFullScreen}
-                  className="p-3 bg-black/60 backdrop-blur-md rounded-xl text-white hover:bg-[var(--color-neon-blue)] hover:text-black transition-all border border-white/10"
+                  className="p-2.5 bg-black/70 backdrop-blur-md rounded-lg text-white hover:bg-[var(--color-accent-primary)] transition-colors"
                   title="Fullscreen"
                 >
-                  <Maximize2 size={20} />
+                  <Maximize2 size={18} />
                 </button>
               </div>
 
-              {/* Loading / Ad Overlay */}
+              {/* Loading State */}
               {!iframeLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/95 z-20 backdrop-blur-xl">
-                  <div className="flex flex-col items-center text-center max-w-sm px-6">
-                    <div className="w-20 h-20 border-4 border-[var(--color-neon-teal)]/20 border-t-[var(--color-neon-blue)] rounded-full animate-spin mb-8 shadow-[0_0_20px_rgba(102,252,241,0.2)]"></div>
-                    <h2 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase italic">Securing Neural Link...</h2>
-                    <p className="text-gray-500 text-xs mb-8 font-bold tracking-widest uppercase opacity-60">Handshaking with game server</p>
-                    
-                    {/* Mock Ad Slot */}
-                    <div className="w-full h-24 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center justify-center p-4 relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 animate-pulse"></div>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 relative z-10 font-black">Sponsored Data</p>
-                      <div className="w-full h-full flex items-center justify-center font-black text-[var(--color-neon-blue)] text-xs relative z-10">
-                        NEONPLAY PREMIUM - 0% LATENCY
-                      </div>
-                    </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#111827] z-20">
+                  <div className="w-16 h-16 bg-[var(--color-accent-primary)]/10 rounded-2xl flex items-center justify-center mb-6 animate-pulse">
+                    <PlaySquare size={32} className="text-[var(--color-accent-primary)]" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-[var(--color-accent-primary)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-[var(--color-accent-primary)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-[var(--color-accent-primary)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               )}
@@ -142,47 +134,46 @@ const GamePlay = () => {
                 title={game.title}
                 sandbox="allow-scripts allow-same-origin allow-popups"
                 allow="autoplay; fullscreen"
-                className={`w-full h-full border-0 transition-opacity duration-1000 ${iframeLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full border-0 transition-opacity duration-700 ${iframeLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setIframeLoaded(true)}
               ></iframe>
             </div>
 
-            <div className={`mt-10 ${theaterMode ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' : ''}`}>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/2 p-8 rounded-[2rem] border border-white/5 glass">
-                <div className="flex items-center gap-6">
-                   <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10">
-                      <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover" />
-                   </div>
+            {/* Game Info Below Player */}
+            <div className={`mt-6 ${theaterMode ? 'max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8' : ''}`}>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex items-center gap-5">
+                   <img src={game.thumbnail} alt={game.title} className="w-16 h-16 rounded-xl object-cover shadow-sm" />
                    <div>
-                      <h1 className="text-4xl md:text-5xl font-black text-white mb-3 tracking-tighter uppercase italic leading-none">{game.title}</h1>
-                      <div className="flex items-center gap-3">
-                        <span className="bg-[var(--color-neon-teal)]/20 text-[var(--color-neon-blue)] px-4 py-1.5 rounded-xl text-xs font-black border border-[var(--color-neon-teal)]/50 tracking-widest uppercase">
+                      <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 tracking-tight">{game.title}</h1>
+                      <div className="flex items-center gap-3 text-sm font-medium">
+                        <span className="text-[var(--color-accent-primary)] px-2.5 py-0.5 rounded-md bg-[var(--color-accent-primary)]/10">
                           {game.category}
                         </span>
-                        <div className="flex items-center gap-1 text-gray-500 text-xs font-black uppercase tracking-widest">
-                           <Monitor size={14} /> Desktop Optimized
-                        </div>
+                        <span className="text-gray-400 flex items-center gap-1">
+                           <Monitor size={14} /> Web Browser
+                        </span>
                       </div>
                    </div>
                 </div>
                 
-                <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button 
                     onClick={() => setTheaterMode(!theaterMode)}
-                    className={`flex-1 md:flex-none flex items-center justify-center space-x-3 px-8 py-4 rounded-xl font-black text-sm tracking-widest transition-all uppercase border ${
+                    className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-semibold text-sm transition-colors border ${
                       theaterMode 
-                      ? 'bg-[var(--color-neon-blue)] text-black border-transparent' 
-                      : 'bg-white/5 text-white border-white/10 hover:bg-white/10'
+                      ? 'bg-[var(--color-accent-primary)] text-white border-transparent' 
+                      : 'bg-transparent text-gray-300 border-white/20 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    <Layout className="w-5 h-5" />
-                    <span>{theaterMode ? 'Exit Theater' : 'Theater Mode'}</span>
+                    <Layout size={18} />
+                    <span>Theater</span>
                   </button>
                   <button 
                     onClick={toggleFullScreen}
-                    className="flex-1 md:flex-none flex items-center justify-center space-x-3 bg-white text-black hover:bg-[var(--color-neon-blue)] px-8 py-4 rounded-xl font-black text-sm tracking-widest transition-all uppercase"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-[var(--color-dark-surface)] text-white hover:bg-gray-700 px-6 py-2.5 rounded-full font-semibold text-sm transition-colors border border-white/10"
                   >
-                    <Maximize2 className="w-5 h-5" />
+                    <Maximize2 size={18} />
                     <span>Fullscreen</span>
                   </button>
                 </div>
@@ -190,33 +181,29 @@ const GamePlay = () => {
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar Area */}
           {!theaterMode && (
-            <div className="w-full lg:w-96 space-y-8">
-              <div className="glass p-8 rounded-[2.5rem] border border-white/10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-6 text-white/5"><Info size={80} /></div>
-                <div className="relative z-10">
-                  <h3 className="text-2xl font-black mb-6 text-white tracking-tighter uppercase italic">Control Manual</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                       <span className="text-xs font-black text-gray-500 uppercase tracking-widest">Movement</span>
-                       <span className="text-xs font-black text-white px-2 py-1 rounded bg-white/10">WASD / ARROWS</span>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-                       <span className="text-xs font-black text-gray-500 uppercase tracking-widest">Action</span>
-                       <span className="text-xs font-black text-white px-2 py-1 rounded bg-white/10">SPACE / CLICK</span>
-                    </div>
+            <div className="w-full lg:w-80 space-y-6">
+              <div className="bg-[var(--color-dark-surface)] p-6 rounded-2xl border border-white/5">
+                <h3 className="text-lg font-bold mb-4 text-white flex items-center gap-2"><Info size={20} className="text-[var(--color-accent-primary)]" /> Controls</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                     <span className="text-sm font-medium text-gray-400">Movement</span>
+                     <div className="flex gap-1">
+                       <span className="text-xs font-bold text-gray-300 px-2 py-1 rounded bg-white/10">WASD</span>
+                       <span className="text-xs font-bold text-gray-300 px-2 py-1 rounded bg-white/10">ARROWS</span>
+                     </div>
                   </div>
-                  <p className="mt-8 text-gray-500 text-xs font-bold leading-relaxed uppercase tracking-wider">
-                    Click the game screen to focus input. For the most responsive experience, we recommend using Theater or Fullscreen mode.
-                  </p>
+                  <div className="flex items-center justify-between">
+                     <span className="text-sm font-medium text-gray-400">Action</span>
+                     <div className="flex gap-1">
+                       <span className="text-xs font-bold text-gray-300 px-2 py-1 rounded bg-white/10">SPACE</span>
+                       <span className="text-xs font-bold text-gray-300 px-2 py-1 rounded bg-white/10">CLICK</span>
+                     </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="bg-gradient-to-br from-[var(--color-neon-blue)]/20 to-purple-500/20 p-8 rounded-[2.5rem] border border-[var(--color-neon-blue)]/30">
-                <h4 className="font-black text-white mb-4 uppercase italic tracking-tighter text-xl">High Performance Notice</h4>
-                <p className="text-xs text-[var(--color-neon-blue)] font-bold uppercase leading-relaxed tracking-widest">
-                  This game is running via industrial-grade tunneling. Ensure your hardware acceleration is enabled for maximum FPS.
+                <p className="mt-6 text-gray-500 text-xs font-medium leading-relaxed">
+                  Click the game screen to focus input.
                 </p>
               </div>
             </div>

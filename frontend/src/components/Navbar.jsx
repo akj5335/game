@@ -1,47 +1,68 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Gamepad2, User as UserIcon, Wallet, LogOut, Zap, Ghost } from 'lucide-react';
+import { Gamepad2, User as UserIcon, Wallet, LogOut, Search, Ghost, Menu } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
-    <nav className="fixed w-full z-50 glass border-b border-white/10 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-neon-blue)] to-[var(--color-neon-teal)] rounded-xl p-0.5 shadow-[0_0_20px_rgba(102,252,241,0.2)] group-hover:scale-110 transition-transform">
-              <div className="w-full h-full bg-[var(--color-dark-bg)] rounded-[inherit] flex items-center justify-center">
-                <Zap className="text-[var(--color-neon-blue)]" size={20} fill="currentColor" />
+    <nav className="fixed w-full z-50 bg-[var(--color-dark-bg)]/90 backdrop-blur-lg border-b border-white/5 shadow-sm">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-6">
+            <button className="lg:hidden text-gray-400 hover:text-white">
+              <Menu size={24} />
+            </button>
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="w-8 h-8 bg-[var(--color-accent-primary)] rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
+                <Gamepad2 className="text-white" size={20} />
               </div>
-            </div>
-            <span className="text-2xl font-black text-white tracking-tighter uppercase italic">Neon<span className="text-gradient">Play</span></span>
-          </Link>
+              <span className="text-xl font-bold text-white tracking-tight hidden sm:block">NeonPlay</span>
+            </Link>
+          </div>
 
-          <div className="flex items-center space-x-6">
+          {/* Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-xl px-8">
+            <form onSubmit={handleSearch} className="w-full relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[var(--color-accent-primary)] transition-colors" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search for games..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[var(--color-dark-surface)] border border-white/10 rounded-full py-2 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-[var(--color-accent-primary)] focus:ring-1 focus:ring-[var(--color-accent-primary)] transition-all placeholder:text-gray-500"
+              />
+            </form>
+          </div>
+
+          {/* Right Side */}
+          <div className="flex items-center space-x-4">
             {user ? (
               <>
                 {!user.isGuest && (
-                  <Link to="/wallet" className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10 hover:border-[var(--color-neon-teal)]/50 transition-all">
-                    <Wallet className="text-[var(--color-neon-teal)]" size={18} />
-                    <span className="font-black text-white text-sm">${user.wallet_balance || 0}</span>
+                  <Link to="/wallet" className="hidden sm:flex items-center gap-2 bg-[var(--color-dark-surface)] px-3 py-1.5 rounded-full border border-white/5 hover:border-white/20 transition-all">
+                    <Wallet className="text-[var(--color-accent-secondary)]" size={16} />
+                    <span className="font-semibold text-white text-sm">${user.wallet_balance || 0}</span>
                   </Link>
                 )}
                 
-                <div className="flex items-center gap-4">
-                  <Link to="/dashboard" className="flex items-center gap-3 group">
-                    <div className="text-right hidden sm:block">
-                      <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">
-                        {user.isGuest ? 'Temporary' : (user.role || 'Player')}
-                      </p>
-                      <p className="text-sm font-black text-white uppercase tracking-tight group-hover:text-[var(--color-neon-blue)] transition-colors">
-                        {user.user_metadata?.name || user.name || 'Anonymous'}
-                      </p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full border-2 border-white/10 overflow-hidden bg-white/5 flex items-center justify-center group-hover:border-[var(--color-neon-blue)] transition-all">
+                <div className="flex items-center gap-3">
+                  <Link to="/dashboard" className="flex items-center gap-2 group">
+                    <div className="w-9 h-9 rounded-full border border-white/10 overflow-hidden bg-[var(--color-dark-surface)] flex items-center justify-center group-hover:border-[var(--color-accent-primary)] transition-all">
                       {user.isGuest ? (
-                        <Ghost className="text-gray-500" size={20} />
+                        <Ghost className="text-gray-400" size={18} />
                       ) : (
                         <img 
                           src={user.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} 
@@ -53,19 +74,19 @@ const Navbar = () => {
                   </Link>
                   <button 
                     onClick={logout} 
-                    className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                    title="Terminate Session"
+                    className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-all"
+                    title="Log Out"
                   >
-                    <LogOut size={20} />
+                    <LogOut size={18} />
                   </button>
                 </div>
               </>
             ) : (
               <Link 
                 to="/login" 
-                className="bg-white text-black px-6 py-2.5 rounded-xl font-black text-xs tracking-widest hover:bg-[var(--color-neon-blue)] transition-all shadow-[0_10px_20px_rgba(0,0,0,0.2)] uppercase"
+                className="bg-[var(--color-accent-primary)] text-white px-5 py-2 rounded-full font-semibold text-sm hover:bg-indigo-400 transition-colors shadow-sm"
               >
-                Access Grid
+                Log In
               </Link>
             )}
           </div>
