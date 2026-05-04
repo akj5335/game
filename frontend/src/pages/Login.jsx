@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { ShieldCheck, Zap, Rocket, Phone, Lock, User, Ghost, ArrowRight, ClipboardCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +15,9 @@ const Login = () => {
   const [error, setError] = useState(null);
   const { login, register, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/dashboard';
+  const message = location.state?.message;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +32,7 @@ const Login = () => {
         }
         await register({ phoneNumber, password, confirmPassword, name, inviteCode: inviteCode.trim() || null });
       }
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     } catch (err) {
       setError(typeof err === 'string' ? err : err.message);
     } finally {
@@ -57,7 +60,8 @@ const Login = () => {
     };
     setUser(guestUser);
     localStorage.setItem('neonplay_guest', JSON.stringify(guestUser));
-    navigate('/');
+    const dest = from === '/dashboard' ? '/' : from;
+    navigate(dest, { replace: true });
   };
 
   return (
@@ -75,6 +79,12 @@ const Login = () => {
           <h1 className="text-3xl font-black text-white tracking-tighter mb-2 italic uppercase">NEONPLAY <span className="text-gradient">{isLogin ? 'AUTH' : 'JOIN'}</span></h1>
           <p className="text-gray-500 font-bold text-xs uppercase tracking-widest">{isLogin ? 'Enter the grid' : 'Create your digital identity'}</p>
         </div>
+
+        {message && !error && (
+          <div className="mb-6 p-4 bg-[var(--color-neon-blue)]/10 border border-[var(--color-neon-blue)]/20 rounded-xl text-[var(--color-neon-blue)] text-xs font-bold text-center">
+            {message}
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold text-center animate-shake">

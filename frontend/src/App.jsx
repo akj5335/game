@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { WalletProvider } from './context/WalletContext';
 
@@ -14,10 +14,23 @@ import ResetPassword from './pages/ResetPassword';
 import LoginSuccess from './pages/LoginSuccess';
 import Navbar from './components/Navbar';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, message }) => {
   const { user, loading } = useContext(AuthContext);
-  if (loading) return null;
-  return user ? children : <Navigate to="/login" />;
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-dark-bg)]">
+        <div className="w-16 h-16 border-4 border-[var(--color-neon-blue)] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location, message: message || "Please login to access this page." }} replace />;
+  }
+
+  return children;
 };
 
 const AdminRoute = ({ children }) => {
@@ -41,7 +54,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
-                <Route path="/game/:id" element={<GamePlay />} />
+                <Route path="/game/:id" element={<ProtectedRoute message="Please login to play this game"><GamePlay /></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
                 <Route path="/login-success" element={<LoginSuccess />} />
               </Routes>
