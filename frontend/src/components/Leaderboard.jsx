@@ -36,7 +36,7 @@ const Leaderboard = () => {
       </div>
 
       <div className="space-y-4">
-        {leaders.map((leader, index) => (
+        {Array.isArray(leaders) && leaders.map((leader, index) => (
           <div 
             key={index} 
             className={`flex items-center justify-between p-4 rounded-2xl border transition-all hover:scale-[1.02] ${
@@ -55,11 +55,13 @@ const Leaderboard = () => {
               </div>
               <div>
                 <p className="text-white font-bold text-sm uppercase tracking-wide">{leader.name}</p>
-                <p className="text-[10px] text-gray-500 font-bold">{leader.referralCount || 0} REFERRALS</p>
+                <p className="text-[10px] text-gray-500 font-bold">{(leader.referral_count || leader.referralCount || 0)} REFERRALS</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[var(--color-neon-blue)] font-black text-lg">${leader.walletBalance.toFixed(2)}</p>
+              <p className="text-[var(--color-neon-blue)] font-black text-lg">
+                ${(leader.wallet_balance || leader.walletBalance || 0).toFixed(2)}
+              </p>
               <p className="text-[10px] text-gray-500 font-bold uppercase">WALLET</p>
             </div>
           </div>

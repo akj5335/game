@@ -200,7 +200,7 @@ const seedGames = async () => {
         title: g.title,
         category: g.category,
         thumbnail: `https://images.crazygames.com/${slug}/thumb-150.png`,
-        iframe_url: `https://html5.gamedistribution.com/${slug}/`,
+        iframe_url: `https://www.crazygames.com/embed/${slug}`,
         popularity: Math.floor(Math.random() * 100000) + 10000,
         is_active: true
       };

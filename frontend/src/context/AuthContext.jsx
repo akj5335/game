@@ -6,83 +6,91 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfile = async (userId) => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      return { data, error };
-    };
+  // Configure axios defaults
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 
-    const checkUser = async () => {
+  useEffect(() => {
+    const initAuth = async () => {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+      const token = localStorage.getItem('neonplay_token');
       
-      if (session) {
-        setSession(session);
-        const { data: profile } = await fetchProfile(session.user.id);
-        setUser({ ...session.user, ...profile });
-        axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          const res = await axios.get('/api/auth/me');
+          setUser(res.data.data.user);
+        } catch (err) {
+          console.error('Session verification failed', err);
+          localStorage.removeItem('neonplay_token');
+          delete axios.defaults.headers.common['Authorization'];
+          
+          // Fallback to guest if exists
+          const savedGuest = localStorage.getItem('neonplay_guest');
+          if (savedGuest) setUser(JSON.parse(savedGuest));
+        }
       } else {
         const savedGuest = localStorage.getItem('neonplay_guest');
-        if (savedGuest) {
-          setUser(JSON.parse(savedGuest));
-        }
+        if (savedGuest) setUser(JSON.parse(savedGuest));
       }
       setLoading(false);
     };
 
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      if (session) {
-        const { data: profile } = await fetchProfile(session.user.id);
-        setUser({ ...session.user, ...profile });
-        axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
-        localStorage.removeItem('neonplay_guest');
-      } else {
-        setUser(null);
-        delete axios.defaults.headers.common['Authorization'];
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
-  };
-
-  const register = async ({ email, password, name }) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name }
+  const login = async (phoneNumber, password) => {
+    try {
+      const res = await axios.post('/api/auth/login', { phoneNumber, password });
+      const { token, data } = res.data;
+      
+      if (!token || token === 'undefined') {
+        throw new Error('Invalid session token received from server');
       }
-    });
-    if (error) throw error;
-    return data;
+
+      localStorage.setItem('neonplay_token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(data.user);
+      localStorage.removeItem('neonplay_guest');
+      
+      return data.user;
+    } catch (err) {
+      throw typeof err === 'string' ? err : err.response?.data?.message || err.message || 'Login failed';
+    }
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
+  const register = async (userData) => {
+    try {
+      const res = await axios.post('/api/auth/register', userData);
+      const { token, data } = res.data;
+      
+      if (!token || token === 'undefined') {
+        throw new Error('Invalid registration session received from server');
+      }
+
+      localStorage.setItem('neonplay_token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setUser(data.user);
+      localStorage.removeItem('neonplay_guest');
+      
+      return data.user;
+    } catch (err) {
+      throw typeof err === 'string' ? err : err.response?.data?.message || err.message || 'Registration failed';
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('neonplay_token');
     localStorage.removeItem('neonplay_guest');
+    delete axios.defaults.headers.common['Authorization'];
     setUser(null);
-    setSession(null);
+    // Also sign out from supabase just in case it was used elsewhere
+    supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, login, register, logout, loading, setUser }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, setUser }}>
       {children}
     </AuthContext.Provider>
   );

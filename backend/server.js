@@ -16,8 +16,24 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const allowedOrigins = (process.env.FRONTEND_URL || 'https://game-six-weld.vercel.app')
+  .split(',')
+  .map(s => s.trim());
+
 app.use(cors({
-  origin: ['https://game-ndnm.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    // Also allow any *.vercel.app preview deployments
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 app.use('/api/auth', authLimiter);

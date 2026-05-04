@@ -1,14 +1,16 @@
 import React, { useState, useContext } from 'react';
-import { ShieldCheck, Zap, Rocket, Mail, Lock, User, Ghost, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Zap, Rocket, Phone, Lock, User, Ghost, ArrowRight, ClipboardCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { login, register, setUser } = useContext(AuthContext);
@@ -20,14 +22,16 @@ const Login = () => {
     setError(null);
     try {
       if (isLogin) {
-        await login(email, password);
+        await login(phoneNumber, password);
       } else {
-        await register({ email, password, name });
-        alert('Verification email sent! Please check your inbox.');
+        if (password !== confirmPassword) {
+          throw new Error("Passwords don't match");
+        }
+        await register({ phoneNumber, password, confirmPassword, name, inviteCode });
       }
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      setError(typeof err === 'string' ? err : err.message);
     } finally {
       setLoading(false);
     }
@@ -44,7 +48,6 @@ const Login = () => {
   };
 
   const handleGuestLogin = () => {
-    // Guest login sets a temporary user state
     const guestUser = {
       id: 'guest_' + Math.random().toString(36).substr(2, 9),
       name: 'Guest Player',
@@ -59,7 +62,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--color-dark-bg)] relative overflow-hidden">
-      {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--color-neon-blue)]/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[var(--color-neon-teal)]/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
 
@@ -75,7 +77,7 @@ const Login = () => {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold text-center">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold text-center animate-shake">
             {error}
           </div>
         )}
@@ -96,12 +98,12 @@ const Login = () => {
           )}
 
           <div className="relative group">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--color-neon-blue)] transition-colors" size={18} />
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--color-neon-blue)] transition-colors" size={18} />
             <input 
-              type="email" 
-              placeholder="EMAIL ADDRESS" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="tel" 
+              placeholder="PHONE NUMBER" 
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white font-bold text-sm focus:outline-none focus:border-[var(--color-neon-blue)] transition-all placeholder:text-gray-600"
               required
             />
@@ -118,6 +120,32 @@ const Login = () => {
               required
             />
           </div>
+
+          {!isLogin && (
+            <>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--color-neon-blue)] transition-colors" size={18} />
+                <input 
+                  type="password" 
+                  placeholder="CONFIRM PASSWORD" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white font-bold text-sm focus:outline-none focus:border-[var(--color-neon-blue)] transition-all placeholder:text-gray-600"
+                  required
+                />
+              </div>
+              <div className="relative group">
+                <ClipboardCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[var(--color-neon-blue)] transition-colors" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="INVITE CODE (OPTIONAL)" 
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white font-bold text-sm focus:outline-none focus:border-[var(--color-neon-blue)] transition-all placeholder:text-gray-600"
+                />
+              </div>
+            </>
+          )}
 
           {isLogin && (
             <div className="text-right">
