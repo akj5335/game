@@ -1,0 +1,481 @@
+{
+  "workingCount": 55,
+  "notWorkingCount": 95,
+  "notWorking": [
+    {
+      "title": "Subway Surfers",
+      "url": "https://www.crazygames.com/embed/subway-surfers",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Temple Run 2",
+      "url": "https://www.crazygames.com/embed/temple-run-2",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Stickman Hook",
+      "url": "https://www.crazygames.com/embed/stickman-hook",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Jetpack Joyride",
+      "url": "https://www.crazygames.com/embed/jetpack-joyride",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Fruit Ninja",
+      "url": "https://www.crazygames.com/embed/fruit-ninja",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Stack Ball",
+      "url": "https://www.crazygames.com/embed/stack-ball",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Fireboy and Watergirl",
+      "url": "https://www.crazygames.com/embed/fireboy-and-watergirl",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Vex 3",
+      "url": "https://www.crazygames.com/embed/vex-3",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Vex 4",
+      "url": "https://www.crazygames.com/embed/vex-4",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Vex 5",
+      "url": "https://www.crazygames.com/embed/vex-5",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Vex 6",
+      "url": "https://www.crazygames.com/embed/vex-6",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Geometry Dash",
+      "url": "https://www.crazygames.com/embed/geometry-dash",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Bullet Force",
+      "url": "https://www.crazygames.com/embed/bullet-force",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Zombs Royale",
+      "url": "https://www.crazygames.com/embed/zombs-royale",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Stick Fight",
+      "url": "https://www.crazygames.com/embed/stick-fight",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Bad Ice Cream",
+      "url": "https://www.crazygames.com/embed/bad-ice-cream",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Drift Hunters",
+      "url": "https://www.crazygames.com/embed/drift-hunters",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Madalin Stunt Cars 2",
+      "url": "https://www.crazygames.com/embed/madalin-stunt-cars-2",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Moto X3M",
+      "url": "https://www.crazygames.com/embed/moto-x3m",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Moto X3M Winter",
+      "url": "https://www.crazygames.com/embed/moto-x3m-winter",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Burnin’ Rubber 5",
+      "url": "https://www.crazygames.com/embed/burnin-rubber-5",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Traffic Rider",
+      "url": "https://www.crazygames.com/embed/traffic-rider",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Speed Racing Pro",
+      "url": "https://www.crazygames.com/embed/speed-racing-pro",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "City Car Driving",
+      "url": "https://www.crazygames.com/embed/city-car-driving",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Real Drift Car",
+      "url": "https://www.crazygames.com/embed/real-drift-car",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Offroad Jeep Simulator",
+      "url": "https://www.crazygames.com/embed/offroad-jeep-simulator",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Extreme Car Driving",
+      "url": "https://www.crazygames.com/embed/extreme-car-driving",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Super Bike Racer",
+      "url": "https://www.crazygames.com/embed/super-bike-racer",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Parking Fury",
+      "url": "https://www.crazygames.com/embed/parking-fury",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Parking Fury 2",
+      "url": "https://www.crazygames.com/embed/parking-fury-2",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Parking Fury 3",
+      "url": "https://www.crazygames.com/embed/parking-fury-3",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Racing Thunder",
+      "url": "https://www.crazygames.com/embed/racing-thunder",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Cut the Rope",
+      "url": "https://www.crazygames.com/embed/cut-the-rope",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Candy Crush Saga",
+      "url": "https://www.crazygames.com/embed/candy-crush-saga",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Bubble Shooter",
+      "url": "https://www.crazygames.com/embed/bubble-shooter",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Tetris",
+      "url": "https://www.crazygames.com/embed/tetris",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Unblock Me",
+      "url": "https://www.crazygames.com/embed/unblock-me",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Brain Test",
+      "url": "https://www.crazygames.com/embed/brain-test",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Flow Free",
+      "url": "https://www.crazygames.com/embed/flow-free",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Lines 98",
+      "url": "https://www.crazygames.com/embed/lines-98",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Merge Numbers",
+      "url": "https://www.crazygames.com/embed/merge-numbers",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Color Match",
+      "url": "https://www.crazygames.com/embed/color-match",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Tile Master",
+      "url": "https://www.crazygames.com/embed/tile-master",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Jigsaw Puzzle",
+      "url": "https://www.crazygames.com/embed/jigsaw-puzzle",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Crossword Puzzle",
+      "url": "https://www.crazygames.com/embed/crossword-puzzle",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Paper.io 2",
+      "url": "https://www.crazygames.com/embed/paperio-2",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Diep.io",
+      "url": "https://www.crazygames.com/embed/diepio",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Krunker.io",
+      "url": "https://www.crazygames.com/embed/krunkerio",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Shell Shockers",
+      "url": "https://www.crazygames.com/embed/shell-shockers",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Hole.io",
+      "url": "https://www.crazygames.com/embed/holeio",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Little Big Snake",
+      "url": "https://www.crazygames.com/embed/little-big-snake",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Zombs.io",
+      "url": "https://www.crazygames.com/embed/zombsio",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Ev.io",
+      "url": "https://www.crazygames.com/embed/evio",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Snowball.io",
+      "url": "https://www.crazygames.com/embed/snowballio",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Crossy Road",
+      "url": "https://www.crazygames.com/embed/crossy-road",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Paper Toss",
+      "url": "https://www.crazygames.com/embed/paper-toss",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Tower Stack",
+      "url": "https://www.crazygames.com/embed/tower-stack",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Rolling Sky",
+      "url": "https://www.crazygames.com/embed/rolling-sky",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Stack Tower",
+      "url": "https://www.crazygames.com/embed/stack-tower",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Bounce Ball",
+      "url": "https://www.crazygames.com/embed/bounce-ball",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Run Sausage Run",
+      "url": "https://www.crazygames.com/embed/run-sausage-run",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Sky Rolling Ball",
+      "url": "https://www.crazygames.com/embed/sky-rolling-ball",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Perfect Hit",
+      "url": "https://www.crazygames.com/embed/perfect-hit",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Tap Tap Dash",
+      "url": "https://www.crazygames.com/embed/tap-tap-dash",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Endless Runner",
+      "url": "https://www.crazygames.com/embed/endless-runner",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Crazy Jump",
+      "url": "https://www.crazygames.com/embed/crazy-jump",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "FIFA Online",
+      "url": "https://www.crazygames.com/embed/fifa-online",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Head Soccer",
+      "url": "https://www.crazygames.com/embed/head-soccer",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Basketball Legends",
+      "url": "https://www.crazygames.com/embed/basketball-legends",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "8 Ball Pool",
+      "url": "https://www.crazygames.com/embed/8-ball-pool",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "9 Ball Pool",
+      "url": "https://www.crazygames.com/embed/9-ball-pool",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Mini Golf",
+      "url": "https://www.crazygames.com/embed/mini-golf",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Tennis Clash",
+      "url": "https://www.crazygames.com/embed/tennis-clash",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Stickman Soccer",
+      "url": "https://www.crazygames.com/embed/stickman-soccer",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Street Basketball",
+      "url": "https://www.crazygames.com/embed/street-basketball",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Golf Battle",
+      "url": "https://www.crazygames.com/embed/golf-battle",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Table Tennis",
+      "url": "https://www.crazygames.com/embed/table-tennis",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Bowling King",
+      "url": "https://www.crazygames.com/embed/bowling-king",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Wrestling Jump",
+      "url": "https://www.crazygames.com/embed/wrestling-jump",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Grow Castle",
+      "url": "https://www.crazygames.com/embed/grow-castle",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Viking Village",
+      "url": "https://www.crazygames.com/embed/viking-village",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Empire Builder",
+      "url": "https://www.crazygames.com/embed/empire-builder",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Idle Miner",
+      "url": "https://www.crazygames.com/embed/idle-miner",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Adventure Quest",
+      "url": "https://www.crazygames.com/embed/adventure-quest",
+      "reason": "HTTP 429"
+    },
+    {
+      "title": "Dungeon Quest",
+      "url": "https://www.crazygames.com/embed/dungeon-quest",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Monster Merge",
+      "url": "https://www.crazygames.com/embed/monster-merge",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Island Survival",
+      "url": "https://www.crazygames.com/embed/island-survival",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Survival Craft",
+      "url": "https://www.crazygames.com/embed/survival-craft",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Among Us",
+      "url": "https://www.crazygames.com/embed/among-us",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Google Snake",
+      "url": "https://www.crazygames.com/embed/google-snake",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Dino Runner",
+      "url": "https://www.crazygames.com/embed/dino-runner",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Space Invaders",
+      "url": "https://www.crazygames.com/embed/space-invaders",
+      "reason": "HTTP 401"
+    },
+    {
+      "title": "Solitaire",
+      "url": "https://www.crazygames.com/embed/solitaire",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Chess",
+      "url": "https://www.crazygames.com/embed/chess",
+      "reason": "HTTP 404"
+    },
+    {
+      "title": "Checkers",
+      "url": "https://www.crazygames.com/embed/checkers",
+      "reason": "HTTP 404"
+    }
+  ]
+}

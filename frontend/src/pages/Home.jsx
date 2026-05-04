@@ -18,7 +18,8 @@ const Home = () => {
         const { data, error } = await supabase
           .from('games')
           .select('*')
-          .limit(48);
+          .order('is_working', { ascending: false })
+          .limit(100);
         
         if (error) throw error;
         setGames(data);
@@ -144,14 +145,18 @@ const Home = () => {
                 {filteredGames.map((game) => (
                   <Link 
                     key={game.id} 
-                    to={`/game/${game.id}`} 
-                    className="group relative rounded-[2rem] overflow-hidden glass-hover block border border-white/5 hover:border-[var(--color-neon-teal)]/50 transition-all duration-500 hover:-translate-y-2 shadow-2xl"
+                    to={game.is_working !== false ? `/game/${game.id}` : '#'} 
+                    className={`group relative rounded-[2rem] overflow-hidden block border transition-all duration-500 shadow-2xl ${
+                      game.is_working !== false 
+                        ? 'glass-hover hover:border-[var(--color-neon-teal)]/50 hover:-translate-y-2 border-white/5' 
+                        : 'opacity-50 grayscale hover:opacity-70 cursor-not-allowed border-red-500/30'
+                    }`}
                   >
                     <div className="aspect-[3/4] w-full bg-gray-900">
                       <img 
                         src={game.thumbnail} 
                         alt={game.title} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        className={`w-full h-full object-cover transition-transform duration-700 ${game.is_working !== false ? 'group-hover:scale-110' : ''}`} 
                         loading="lazy" 
                         onError={(e) => {
                           e.target.onerror = null;
@@ -160,8 +165,15 @@ const Home = () => {
                       />
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                    
+                    {game.is_working === false && (
+                      <div className="absolute top-4 right-4 bg-red-500 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-red-500/20">
+                        Broken Link
+                      </div>
+                    )}
+
                     <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-lg font-black text-white mb-2 group-hover:text-[var(--color-neon-blue)] transition-colors line-clamp-1 tracking-tight">
+                      <h3 className={`text-lg font-black mb-2 transition-colors line-clamp-1 tracking-tight ${game.is_working !== false ? 'text-white group-hover:text-[var(--color-neon-blue)]' : 'text-gray-400'}`}>
                         {game.title}
                       </h3>
                       <div className="flex items-center justify-between">
