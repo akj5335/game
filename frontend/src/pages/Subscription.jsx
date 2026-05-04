@@ -95,7 +95,7 @@ const Subscription = () => {
       );
 
       // WhatsApp URL
-      const adminPhone = "919876543210"; // Replace with real admin phone
+      const adminPhone = "917665018066"; // Admin's WhatsApp number
       const message = `Hello, I want to subscribe to NeonPlay ${planId} (₹${amount}). My User ID is: ${user?.id || 'Unknown'}. I am ready to pay via UPI QR.`;
       const waUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
       
