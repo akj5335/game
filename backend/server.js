@@ -52,6 +52,7 @@ const gameRoutes = require('./routes/gameRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const rewardRoutes = require('./routes/rewardRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
@@ -59,6 +60,7 @@ app.use('/api/games', gameRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/rewards', rewardRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Static Files & Frontend Routing
 const frontendPath = path.join(__dirname, '../frontend/dist');

@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Maximize2, Monitor, Layout, ArrowLeft, Info, Trophy, Share2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { AuthContext } from '../context/AuthContext';
 
 const GamePlay = () => {
   const { id } = useParams();
+  const { user } = useContext(AuthContext);
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -72,6 +74,34 @@ const GamePlay = () => {
         </Link>
       </div>
     );
+  }
+
+  if (game.is_premium) {
+    const isSubscribed = user?.is_subscribed;
+    const isExpired = user?.subscription_expiry ? new Date(user.subscription_expiry) < new Date() : true;
+    
+    if (!isSubscribed || isExpired) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-[var(--color-dark-bg)] px-4">
+          <div className="text-center p-10 glass rounded-[2.5rem] max-w-lg border border-[var(--color-neon-blue)]/30 shadow-[0_0_50px_rgba(102,252,241,0.1)]">
+            <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter mb-4">
+              <span className="text-[var(--color-neon-blue)]">PREMIUM</span> GAME
+            </h2>
+            <p className="text-gray-400 font-bold mb-8 leading-relaxed">
+              This game is reserved for NeonPlay Elite members. Subscribe to unlock this and all other premium titles instantly.
+            </p>
+            <Link to="/subscription" className="w-full inline-block bg-[var(--color-neon-blue)] text-black px-8 py-4 rounded-xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-[0_0_20px_rgba(102,252,241,0.4)]">
+              Unlock Elite Access
+            </Link>
+            <div className="mt-6 text-center">
+              <Link to="/" className="text-xs font-black text-gray-500 uppercase tracking-widest hover:text-white transition-colors">
+                Return to Free Games
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
   return (

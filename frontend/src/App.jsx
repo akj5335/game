@@ -12,6 +12,7 @@ import Admin from './pages/Admin';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import LoginSuccess from './pages/LoginSuccess';
+import Subscription from './pages/Subscription';
 import Navbar from './components/Navbar';
 
 const ProtectedRoute = ({ children, message }) => {
@@ -28,6 +29,27 @@ const ProtectedRoute = ({ children, message }) => {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location, message: message || "Please login to access this page." }} replace />;
+  }
+
+  return children;
+};
+
+const PremiumRoute = ({ children }) => {
+  const { user, loading } = useContext(AuthContext);
+  const location = useLocation();
+
+  if (loading) return null;
+  
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location, message: "Please login to access this page." }} replace />;
+  }
+
+  // Check if subscribed and not expired
+  const isSubscribed = user.is_subscribed;
+  const isExpired = user.subscription_expiry ? new Date(user.subscription_expiry) < new Date() : true;
+
+  if (!isSubscribed || isExpired) {
+    return <Navigate to="/subscription" state={{ from: location, message: "Premium subscription required." }} replace />;
   }
 
   return children;
@@ -55,6 +77,7 @@ function App() {
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
                 <Route path="/game/:id" element={<ProtectedRoute message="Please login to play this game"><GamePlay /></ProtectedRoute>} />
+                <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
                 <Route path="/login-success" element={<LoginSuccess />} />
               </Routes>
