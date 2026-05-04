@@ -56,7 +56,19 @@ export const AuthProvider = ({ children }) => {
       
       return data.user;
     } catch (err) {
-      throw typeof err === 'string' ? err : err.response?.data?.message || err.message || 'Login failed';
+      let errorMessage = 'Login failed';
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err.response?.data?.message) {
+        if (Array.isArray(err.response.data.message)) {
+          errorMessage = err.response.data.message[0]?.message || 'Validation error';
+        } else {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      throw errorMessage;
     }
   };
 
@@ -76,7 +88,19 @@ export const AuthProvider = ({ children }) => {
       
       return data.user;
     } catch (err) {
-      throw typeof err === 'string' ? err : err.response?.data?.message || err.message || 'Registration failed';
+      let errorMessage = 'Registration failed';
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err.response?.data?.message) {
+        if (Array.isArray(err.response.data.message)) {
+          errorMessage = err.response.data.message[0]?.message || 'Validation error';
+        } else {
+          errorMessage = err.response.data.message;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      throw errorMessage;
     }
   };
 
